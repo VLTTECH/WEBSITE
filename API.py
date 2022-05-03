@@ -45,7 +45,11 @@ def criar():
     lista.append(jogo)
     return redirect ("./")
 
-
+@app.route('/logout')
+def logout():
+    session['usuario_logado'] = None
+    flash('sessão encerrada')
+    return redirect('./')
 
 
 app.run(debug=True)
