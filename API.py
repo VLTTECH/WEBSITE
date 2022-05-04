@@ -11,6 +11,19 @@ jogo2 = Jogo('God of War', 'Hack n Slash', 'PS2')
 jogo3 = Jogo('Mortal Kombat', 'Luta', 'PS2')
 lista = [jogo1, jogo2, jogo3]
 
+class Usuario:
+    def __init__(self,nome,nickname,senha):
+        self.nome = nome
+        self.nickname = nickname
+        self.senha = senha
+
+usuario1 = Usuario("Cristiano Manhães","Botelho","airbus")
+usuario2 = Usuario('Luiz maia','Parasitax', 'boeing')
+usuario3 = Usuario('Veronica Maria', 'Pituquinha', 'Veronica01*')
+
+usuarios = {usuario1.nickname:usuario1, usuario2.nickname:usuario2,usuario3.nickname:usuario3}
+
+
 app = Flask(__name__)
 app.secret_key= 'alura'
 
@@ -20,21 +33,27 @@ def index():
 
 @app.route('/novo')
 def novo():
+    if 'usuario_logado' not in session or session ['usuario_logado'] == None:
+        return redirect('/login?proxima=novo')
     return render_template('novo.html', titulo='Novo Jogo')
 
 @app.route('/login')
 def login():    
-    return render_template('login.html', titulo ="Login")
+    proxima = request.args.get('proxima')
+    return render_template('login.html', titulo ="Login", proxima=proxima)
 
 @app.route('/autenticar', methods = ['POST',])
 def autenticar():
-    if "airbus" == request.form['senha']:
-        session['usuario_logado'] = request.form['usuario']
-        flash(session['usuario_logado']+' usuario logado com sucesso')
-        return redirect('/')
-    else:
-        flash('usuario não logado')
-        return redirect('/login')
+    if request.form['usuario'] in usuarios:
+        usuario = usuarios[request.form['usuario']]
+        if request.form['senha'] == usuario.senha:
+            session['usuario_logado'] = usuario.nickname
+            flash(usuario.nickname +' usuario logado com sucesso')
+            proxima_pag = request.form['proxima']
+            return redirect(proxima_pag)
+        else:
+            flash('usuario não logado')
+            return redirect('/login')
 
 @app.route('/criar', methods=['POST',])
 def criar():
